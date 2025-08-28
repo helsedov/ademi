@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Стихи</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>Стихи</h1>
+        </header>
+
+        <div class="page">
+            <div class="poem-container">
+                <div class="poem-text" id="poem-text">Нажмите "Посмотреть", чтобы увидеть стих</div>
+                <div class="poem-controls">
+                    <button class="btn" id="view-poem-btn">Посмотреть</button>
+                    <button class="btn" id="next-poem-btn">Следующий стих</button>
+                </div>
+            </div>
+        </div>
+
+        <div class="nav-buttons">
+            <a href="index.html" class="btn">Главная</a>
+        </div>
+
+        <footer>
+            <p>&copy; 2023 Интерактивный сайт. Все права защищены.</p>
+        </footer>
+    </div>
+
+    <script>
+        // Стихи для страницы стихов
+        const poems = [
+            "Весна пришла, и всё вокруг\nЗеленеет, расцветает.\nЛистья шепчут тайны ветра,\nСолнце греет, как родная матушка.",
+            "Морозный день, но в душе\nТепло и светло.\nСердце бьётся в такт с ветром,\nПусть счастье не покидает нас!",
+            "Звёзды на небе сверкают,\nКак алмазы в ночи.\nОни рассказывают сказки,\nЧто в каждом из нас живёт."
+        ];
+
+        let currentPoemIndex = 0;
+
+        document.getElementById('view-poem-btn').addEventListener('click', function() {
+            document.getElementById('poem-text').textContent = poems[currentPoemIndex];
+        });
+
+        document.getElementById('next-poem-btn').addEventListener('click', function() {
+            currentPoemIndex = (currentPoemIndex + 1) % poems.length;
+            document.getElementById('poem-text').textContent = poems[currentPoemIndex];
+        });
+    </script>
+</body>
+</html>
