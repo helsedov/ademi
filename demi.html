@@ -1,0 +1,530 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Интерактивный сайт</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            background-color: #f0f0f0;
+            color: #333333;
+            min-height: 100vh;
+            transition: all 0.3s ease;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        header {
+            text-align: center;
+            padding: 20px 0;
+            border-bottom: 2px solid #ff6b6b;
+            margin-bottom: 30px;
+        }
+
+        h1 {
+            color: #ff6b6b;
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+        }
+
+        .nav-buttons {
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+            flex-wrap: wrap;
+            margin: 30px 0;
+        }
+
+        .btn {
+            background-color: #ff6b6b;
+            color: white;
+            border: none;
+            padding: 15px 30px;
+            font-size: 1.1rem;
+            border-radius: 50px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        .btn:hover {
+            background-color: #ff5252;
+            transform: translateY(-3px);
+            box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
+        }
+
+        .page {
+            display: none;
+            background-color: white;
+            border-radius: 15px;
+            padding: 30px;
+            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.1);
+            margin-bottom: 30px;
+            min-height: 400px;
+        }
+
+        .active {
+            display: block;
+            animation: fadeIn 0.5s ease;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .poem-container {
+            text-align: center;
+            padding: 30px;
+        }
+
+        .poem-text {
+            font-size: 1.4rem;
+            line-height: 1.8;
+            margin: 30px 0;
+            min-height: 200px;
+            padding: 20px;
+            background-color: #f8f8f8;
+            border-radius: 10px;
+            border-left: 5px solid #ff6b6b;
+        }
+
+        .poem-controls {
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+            margin-top: 30px;
+        }
+
+        .passcode-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 20px;
+        }
+
+        .letters-container {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 15px;
+            margin: 30px 0;
+            min-height: 200px;
+        }
+
+        .letter {
+            width: 50px;
+            height: 50px;
+            background-color: #ff6b6b;
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+            font-weight: bold;
+            border-radius: 50%;
+            cursor: grab;
+            user-select: none;
+            transition: all 0.2s ease;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+        }
+
+        .letter:hover {
+            transform: scale(1.1);
+        }
+
+        .letter.dragging {
+            opacity: 0.7;
+            transform: scale(1.2);
+        }
+
+        .target-area {
+            width: 300px;
+            height: 100px;
+            border: 3px dashed #ff6b6b;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 30px 0;
+            background-color: #fff8f0;
+            transition: all 0.3s ease;
+        }
+
+        .target-area.highlight {
+            background-color: #ffebee;
+            border-color: #ff5252;
+        }
+
+        .target-area.correct {
+            background-color: #e8f5e9;
+            border-color: #4caf50;
+        }
+
+        .message {
+            font-size: 2rem;
+            font-weight: bold;
+            color: #ff6b6b;
+            margin: 20px 0;
+            text-align: center;
+            opacity: 0;
+            transition: opacity 0.5s ease;
+        }
+
+        .message.show {
+            opacity: 1;
+        }
+
+        .hearts-container {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 1000;
+            display: none;
+        }
+
+        .heart {
+            position: absolute;
+            font-size: 24px;
+            color: #ff6b6b;
+            animation: float 6s linear infinite;
+            opacity: 0;
+        }
+
+        @keyframes float {
+            0% {
+                transform: translateY(100vh) rotate(0deg);
+                opacity: 0;
+            }
+            10% {
+                opacity: 1;
+            }
+            90% {
+                opacity: 1;
+            }
+            100% {
+                transform: translateY(-100px) rotate(360deg);
+                opacity: 0;
+            }
+        }
+
+        .contact-card {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            text-align: center;
+        }
+
+        .avatar {
+            width: 150px;
+            height: 150px;
+            border-radius: 50%;
+            background-color: #ff6b6b;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 4rem;
+            color: white;
+            margin-bottom: 20px;
+            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
+        }
+
+        .info {
+            background-color: #f8f8f8;
+            padding: 20px;
+            border-radius: 10px;
+            width: 100%;
+            max-width: 500px;
+        }
+
+        .info h2 {
+            color: #ff6b6b;
+            margin-bottom: 15px;
+        }
+
+        .info p {
+            margin: 10px 0;
+            font-size: 1.1rem;
+        }
+
+        .social-links {
+            display: flex;
+            gap: 15px;
+            margin-top: 20px;
+        }
+
+        .social-link {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background-color: #ff6b6b;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            text-decoration: none;
+            font-size: 1.2rem;
+            transition: all 0.3s ease;
+        }
+
+        .social-link:hover {
+            transform: translateY(-3px);
+            background-color: #ff5252;
+        }
+
+        footer {
+            text-align: center;
+            padding: 20px;
+            margin-top: 30px;
+            border-top: 2px solid #ff6b6b;
+            color: #777;
+        }
+
+        @media (max-width: 768px) {
+            .nav-buttons {
+                flex-direction: column;
+                align-items: center;
+            }
+            
+            .btn {
+                width: 80%;
+                max-width: 300px;
+            }
+            
+            .poem-text {
+                font-size: 1.2rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>Интерактивный сайт</h1>
+            <p>Добро пожаловать на наш интерактивный сайт!</p>
+        </header>
+
+        <div class="nav-buttons">
+            <button class="btn" onclick="showPage('poem')">Стихи</button>
+            <button class="btn" onclick="showPage('passcode')">Пасхалки</button>
+            <button class="btn" onclick="showPage('contact')">Визитка</button>
+        </div>
+
+        <!-- Страница со стихами -->
+        <div id="poem-page" class="page active">
+            <h2>Стихи</h2>
+            <div class="poem-container">
+                <div class="poem-text" id="poem-text">Нажмите "Посмотреть", чтобы увидеть стих</div>
+                <div class="poem-controls">
+                    <button class="btn" id="view-poem-btn">Посмотреть</button>
+                    <button class="btn" id="next-poem-btn">Следующий стих</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Страница с пасхалками -->
+        <div id="passcode-page" class="page">
+            <h2>Пасхалки</h2>
+            <div class="passcode-container">
+                <p>Перетащите буквы в правильное место для получения сообщения!</p>
+                <div class="letters-container" id="letters-container">
+                    <!-- Буквы будут добавлены через JavaScript -->
+                </div>
+                <div class="target-area" id="target-area">
+                    <span>Разместите буквы здесь</span>
+                </div>
+                <div class="message" id="message">I LOVE YOU</div>
+            </div>
+        </div>
+
+        <!-- Страница с визиткой -->
+        <div id="contact-page" class="page">
+            <h2>Контактная информация</h2>
+            <div class="contact-card">
+                <div class="avatar">👤</div>
+                <div class="info">
+                    <h2>Александр Петров</h2>
+                    <p><strong>Должность:</strong> Веб-разработчик</p>
+                    <p><strong>Email:</strong> alexander@example.com</p>
+                    <p><strong>Телефон:</strong> +7 (999) 123-45-67</p>
+                    <p><strong>Город:</strong> Москва, Россия</p>
+                    <div class="social-links">
+                        <a href="#" class="social-link">📘</a>
+                        <a href="#" class="social-link">🐦</a>
+                        <a href="#" class="social-link">📷</a>
+                        <a href="#" class="social-link">📧</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <footer>
+            <p>&copy; 2023 Интерактивный сайт. Все права защищены.</p>
+        </footer>
+    </div>
+
+    <div class="hearts-container" id="hearts-container"></div>
+
+    <script>
+        // Стихи для страницы стихов
+        const poems = [
+            "Весна пришла, и всё вокруг\nЗеленеет, расцветает.\nЛистья шепчут тайны ветра,\nСолнце греет, как родная матушка.",
+            "Морозный день, но в душе\nТепло и светло.\nСердце бьётся в такт с ветром,\nПусть счастье не покидает нас!",
+            "Звёзды на небе сверкают,\nКак алмазы в ночи.\nОни рассказывают сказки,\nЧто в каждом из нас живёт."
+        ];
+
+        let currentPoemIndex = 0;
+
+        // Показать страницу
+        function showPage(pageId) {
+            // Скрыть все страницы
+            document.querySelectorAll('.page').forEach(page => {
+                page.classList.remove('active');
+            });
+            
+            // Показать выбранную страницу
+            document.getElementById(pageId).classList.add('active');
+            
+            // Если открываем страницу с пасхалками, инициализируем её
+            if (pageId === 'passcode-page') {
+                initPasscode();
+            }
+        }
+
+        // Стихи
+        document.getElementById('view-poem-btn').addEventListener('click', function() {
+            document.getElementById('poem-text').textContent = poems[currentPoemIndex];
+        });
+
+        document.getElementById('next-poem-btn').addEventListener('click', function() {
+            currentPoemIndex = (currentPoemIndex + 1) % poems.length;
+            document.getElementById('poem-text').textContent = poems[currentPoemIndex];
+        });
+
+        // Пасхалки
+        function initPasscode() {
+            const letters = ['I', 'L', 'O', 'V', 'E', 'Y', 'O', 'U'];
+            const container = document.getElementById('letters-container');
+            const targetArea = document.getElementById('target-area');
+            const message = document.getElementById('message');
+            const heartsContainer = document.getElementById('hearts-container');
+            
+            // Очищаем контейнер
+            container.innerHTML = '';
+            
+            // Создаем буквы
+            letters.forEach(letter => {
+                const letterElement = document.createElement('div');
+                letterElement.className = 'letter';
+                letterElement.textContent = letter;
+                letterElement.draggable = true;
+                letterElement.dataset.letter = letter;
+                
+                letterElement.addEventListener('dragstart', dragStart);
+                letterElement.addEventListener('dragend', dragEnd);
+                
+                container.appendChild(letterElement);
+            });
+            
+            // Добавляем события для области цели
+            targetArea.addEventListener('dragover', dragOver);
+            targetArea.addEventListener('dragenter', dragEnter);
+            targetArea.addEventListener('dragleave', dragLeave);
+            targetArea.addEventListener('drop', drop);
+            
+            // Переменные для отслеживания состояния
+            let draggedLetter = null;
+            let correctLetters = [];
+            
+            function dragStart(e) {
+                draggedLetter = this;
+                setTimeout(() => this.classList.add('dragging'), 0);
+                e.dataTransfer.setData('text/plain', this.dataset.letter);
+            }
+            
+            function dragEnd() {
+                this.classList.remove('dragging');
+                draggedLetter = null;
+            }
+            
+            function dragOver(e) {
+                e.preventDefault();
+            }
+            
+            function dragEnter(e) {
+                e.preventDefault();
+                targetArea.classList.add('highlight');
+            }
+            
+            function dragLeave() {
+                targetArea.classList.remove('highlight');
+            }
+            
+            function drop(e) {
+                e.preventDefault();
+                targetArea.classList.remove('highlight');
+                
+                const letter = e.dataTransfer.getData('text/plain');
+                const correctSequence = 'ILOVEYOU';
+                
+                // Проверяем, правильно ли буква расположена
+                if (correctLetters.length < correctSequence.length) {
+                    correctLetters.push(letter);
+                    
+                    // Проверяем, если все буквы правильно расположены
+                    if (correctLetters.join('') === correctSequence) {
+                        message.classList.add('show');
+                        
+                        // Показываем сердечки
+                        heartsContainer.style.display = 'block';
+                        createHearts();
+                        
+                        // Убираем возможность двигать дальше
+                        document.querySelectorAll('.letter').forEach(el => {
+                            el.draggable = false;
+                        });
+                    }
+                }
+            }
+            
+            // Создание сердечек
+            function createHearts() {
+                setInterval(() => {
+                    const heart = document.createElement('div');
+                    heart.className = 'heart';
+                    heart.innerHTML = '❤';
+                    heart.style.left = Math.random() * 100 + 'vw';
+                    heart.style.animationDuration = (Math.random() * 5 + 3) + 's';
+                    heart.style.fontSize = (Math.random() * 20 + 15) + 'px';
+                    heartsContainer.appendChild(heart);
+                    
+                    // Удаляем сердечко после окончания анимации
+                    setTimeout(() => {
+                        heart.remove();
+                    }, 6000);
+                }, 200);
+            }
+        }
+
+        // Инициализация при загрузке
+        window.addEventListener('load', function() {
+            // Показываем первую страницу
+            showPage('poem');
+        });
+    </script>
+</body>
+</html>
