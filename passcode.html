@@ -1,0 +1,265 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Пасхалки</title>
+    <link rel="stylesheet" href="styles.css">
+    <style>
+        .passcode-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 20px;
+        }
+
+        .letters-container {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 15px;
+            margin: 30px 0;
+            min-height: 200px;
+        }
+
+        .letter {
+            width: 50px;
+            height: 50px;
+            background-color: #ff6b6b;
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+            font-weight: bold;
+            border-radius: 50%;
+            cursor: grab;
+            user-select: none;
+            transition: all 0.2s ease;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+        }
+
+        .letter:hover {
+            transform: scale(1.1);
+        }
+
+        .letter.dragging {
+            opacity: 0.7;
+            transform: scale(1.2);
+        }
+
+        .target-area {
+            width: 300px;
+            height: 100px;
+            border: 3px dashed #ff6b6b;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 30px 0;
+            background-color: #fff8f0;
+            transition: all 0.3s ease;
+        }
+
+        .target-area.highlight {
+            background-color: #ffebee;
+            border-color: #ff5252;
+        }
+
+        .target-area.correct {
+            background-color: #e8f5e9;
+            border-color: #4caf50;
+        }
+
+        .message {
+            font-size: 2rem;
+            font-weight: bold;
+            color: #ff6b6b;
+            margin: 20px 0;
+            text-align: center;
+            opacity: 0;
+            transition: opacity 0.5s ease;
+        }
+
+        .message.show {
+            opacity: 1;
+        }
+
+        .hearts-container {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 1000;
+            display: none;
+        }
+
+        .heart {
+            position: absolute;
+            font-size: 24px;
+            color: #ff6b6b;
+            animation: float 6s linear infinite;
+            opacity: 0;
+        }
+
+        @keyframes float {
+            0% {
+                transform: translateY(100vh) rotate(0deg);
+                opacity: 0;
+            }
+            10% {
+                opacity: 1;
+            }
+            90% {
+                opacity: 1;
+            }
+            100% {
+                transform: translateY(-100px) rotate(360deg);
+                opacity: 0;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>Пасхалки</h1>
+        </header>
+
+        <div class="page">
+            <div class="passcode-container">
+                <p>Перетащите буквы в правильное место для получения сообщения!</p>
+                <div class="letters-container" id="letters-container">
+                    <!-- Буквы будут добавлены через JavaScript -->
+                </div>
+                <div class="target-area" id="target-area">
+                    <span>Разместите буквы здесь</span>
+                </div>
+                <div class="message" id="message">I LOVE YOU</div>
+            </div>
+        </div>
+
+        <div class="nav-buttons">
+            <a href="index.html" class="btn">Главная</a>
+        </div>
+
+        <footer>
+            <p>&copy; 2023 Интерактивный сайт. Все права защищены.</p>
+        </footer>
+    </div>
+
+    <div class="hearts-container" id="hearts-container"></div>
+
+    <script>
+        // Инициализация пасхалки
+        function initPasscode() {
+            const letters = ['I', 'L', 'O', 'V', 'E', 'Y', 'O', 'U'];
+            const container = document.getElementById('letters-container');
+            const targetArea = document.getElementById('target-area');
+            const message = document.getElementById('message');
+            const heartsContainer = document.getElementById('hearts-container');
+            
+            // Очищаем контейнер
+            container.innerHTML = '';
+            
+            // Создаем буквы
+            letters.forEach(letter => {
+                const letterElement = document.createElement('div');
+                letterElement.className = 'letter';
+                letterElement.textContent = letter;
+                letterElement.draggable = true;
+                letterElement.dataset.letter = letter;
+                
+                letterElement.addEventListener('dragstart', dragStart);
+                letterElement.addEventListener('dragend', dragEnd);
+                
+                container.appendChild(letterElement);
+            });
+            
+            // Добавляем события для области цели
+            targetArea.addEventListener('dragover', dragOver);
+            targetArea.addEventListener('dragenter', dragEnter);
+            targetArea.addEventListener('dragleave', dragLeave);
+            targetArea.addEventListener('drop', drop);
+            
+            // Переменные для отслеживания состояния
+            let draggedLetter = null;
+            let correctLetters = [];
+            
+            function dragStart(e) {
+                draggedLetter = this;
+                setTimeout(() => this.classList.add('dragging'), 0);
+                e.dataTransfer.setData('text/plain', this.dataset.letter);
+            }
+            
+            function dragEnd() {
+                this.classList.remove('dragging');
+                draggedLetter = null;
+            }
+            
+            function dragOver(e) {
+                e.preventDefault();
+            }
+            
+            function dragEnter(e) {
+                e.preventDefault();
+                targetArea.classList.add('highlight');
+            }
+            
+            function dragLeave() {
+                targetArea.classList.remove('highlight');
+            }
+            
+            function drop(e) {
+                e.preventDefault();
+                targetArea.classList.remove('highlight');
+                
+                const letter = e.dataTransfer.getData('text/plain');
+                const correctSequence = 'ILOVEYOU';
+                
+                // Проверяем, правильно ли буква расположена
+                if (correctLetters.length < correctSequence.length) {
+                    correctLetters.push(letter);
+                    
+                    // Проверяем, если все буквы правильно расположены
+                    if (correctLetters.join('') === correctSequence) {
+                        message.classList.add('show');
+                        
+                        // Показываем сердечки
+                        heartsContainer.style.display = 'block';
+                        createHearts();
+                        
+                        // Убираем возможность двигать дальше
+                        document.querySelectorAll('.letter').forEach(el => {
+                            el.draggable = false;
+                        });
+                    }
+                }
+            }
+            
+            // Создание сердечек
+            function createHearts() {
+                setInterval(() => {
+                    const heart = document.createElement('div');
+                    heart.className = 'heart';
+                    heart.innerHTML = '❤';
+                    heart.style.left = Math.random() * 100 + 'vw';
+                    heart.style.animationDuration = (Math.random() * 5 + 3) + 's';
+                    heart.style.fontSize = (Math.random() * 20 + 15) + 'px';
+                    heartsContainer.appendChild(heart);
+                    
+                    // Удаляем сердечко после окончания анимации
+                    setTimeout(() => {
+                        heart.remove();
+                    }, 6000);
+                }, 200);
+            }
+        }
+
+        // Инициализация при загрузке
+        window.addEventListener('load', initPasscode);
+    </script>
+</body>
+</html>
